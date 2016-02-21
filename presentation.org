@@ -1,0 +1,44 @@
+#+TITLE: 2016 年 2 月現在の Clojure 開発環境について
+#+AUTHOR: ayato_p (あやぴー)
+
+#+begin_src emacs-lisp
+(set-default-font "Droid Sans Mono-8")
+(org-timer-set-timer "0:20:00")
+(org-display-inline-images t)
+(org-tree-slide-mode t)
+(setq org-tree-slide-heading-emphasis t)
+(setq org-tree-slide-skip-outline-level 0)
+nil
+#+end_src
+
+* 2016 年 2 月現在の Clojure 開発環境について
+
+** 自己紹介
+
+- あやぴーです。
+
+[[./image/ayato-p.png]]
+
+** この発表の目的
+
+- Lisp Meet Up は Clojure 回でも Common Lisper が多い
+  - SLIME ユーザー目線の意見を聞いてみたい(しょぼい or すごい)
+  - Common Lisper が Clojurian の開発環境に興味あるかも？ (ref: clfreaks #12)
+
+- Clojurian でも微妙な開発環境の人は多い
+  - 「それ不便じゃない?」と突っ込みたくなる
+  - わりとなうい情報をキャッチアップしてない人はいると思う
+
+** Clojure 開発で良く使われているエディタ / IDE
+
+[[./image/survey-results-primary-editor.png]]
+
+** 今日は主に Emacs の話をします
+
+*** Cider vs inf-clojure
+
+Cider と inf-clojure 両方使ったことがある人
+
+
+
+*** Cider
