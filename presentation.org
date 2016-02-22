@@ -3,11 +3,12 @@
 
 #+begin_src emacs-lisp
 (set-default-font "Droid Sans Mono-8")
-(org-timer-set-timer "0:20:00")
+(org-timer-set-timer "0:45:00")
 (org-display-inline-images t)
 (org-tree-slide-mode t)
 (setq org-tree-slide-heading-emphasis t)
 (setq org-tree-slide-skip-outline-level 0)
+(e2wm:stop-management)
 nil
 #+end_src
 
@@ -29,16 +30,257 @@ nil
   - 「それ不便じゃない?」と突っ込みたくなる
   - わりとなうい情報をキャッチアップしてない人はいると思う
 
-** Clojure 開発で良く使われているエディタ / IDE
+- Emacs 最高という話がしたかった
+
+- どちらかというと俯瞰的な話ではなくて Emacs + Cider の話をします
+
+** Emacs + Cider について
+
+- Clojure の開発環境の中では一番メジャー(王道)
 
 [[./image/survey-results-primary-editor.png]]
 
-** 今日は主に Emacs の話をします
+- インスペクターやデバッガーなどを標準装備していて多機能
+  - 便利機能一杯だけど使ったことのない機能の方が多い
 
-*** Cider vs inf-clojure
+- 少々起動に時間がかかる
+  - 再起動をあまりしないで済むように気をつける
 
-Cider と inf-clojure 両方使ったことがある人
+*** 標準的な機能
+
+何気なく使う機能が REPL とのコミュニケーションです。
+
+**** REPL を使う
+
+- =C-c C-e= に代表される評価したいフォームを REPL へ送って評価するタイプのものはある
+  - 他にも評価結果を pretty print したり、フォームを評価結果と置換するようなコマンドもある
+- 最近のバージョンでは評価結果をオーバーレイで表示するようになっていて便利
+
+#+begin_src clojure
+;;; よく使う機能
+;;; C-c C-e
+(clojure.string/join "," ["Hello" "world"])
+
+;;; C-c C-w
+(vec (reverse (range 10)))
+
+;;; C-u C-c C-p
+(defn rand-str
+  ([] (rand-str 10))
+  ([n] (->> #(rand-nth (range 97 123))
+       (repeatedly n)
+       (map char)
+       (apply str))))
+
+(defrecord Person [name])
+
+(defn gen-people []
+  (repeatedly #(Person. (rand-str 10))))
+
+(take 10 (gen-people))
+
+;;; C-c C-d C-d RET
+(println "Hello")
+#+end_src
+
+*** 便利機能
+
+- 沢山機能があるけど、それを全部普段から使っているわけではない
+  - 主に使うのはマクロ展開やインスペクターなど
+  - 逆にデバッガなどはあまり使ってない(便利だけど)
+
+**** 複数の REPL を同時に使う
+
+- Clojure を使った開発では同時に ClojureScript を書くことが多い(?)
+  - Clojure の REPL を ClojureScript の評価には使えない
+    - Clojure と同じ関数も多いので全く使えないというわけではないが…
+  - ClojureScript 用の REPL を同時に使いたい
+    - Cider 0.10.0 からは同時に複数の REPL セッションを保持できるようになった
+
+open: [[./project.clj][project.clj]]
+open: [[./src-cljs/demo/core.cljs][ClojureScript file]]
+
+**** マクロ展開
+
+- マクロ展開が短いショートカットで出来る
+  - =macroexpand-1= と =clojure.walk/macroexpand-all= がカジュアルに使えるのは嬉しい
+
+#+begin_src clojure
+;;; C-c C-m or C-c M-m
+(defrecord AnyRecord [id code])
+#+end_src
+
+**** インスペクター
+
+- Clojure も Java もどちらのデータでも簡単にインスペクトできる(便利)
+
+#+begin_src clojure
+;;; clojure data type
+(defrecord Currency [code])
+(defrecord Money [value currency])
+
+(def jpy (Currency. "jpy"))
+
+[(Money. 1 jpy)
+ (Money. 5 jpy)
+ (Money. 10 jpy)] ;; M-x cider-inspect / C-c M-i
+
+;;; java data type
+(deftype TCurrency [code])
+(deftype TMoney [value currency])
+
+(def usd (TCurrency. "usd"))
+
+(doto (java.util.ArrayList.)
+  (.add (TMoney. 1 usd))
+  (.add (TMoney. 5 usd))
+  (.add (TMoney. 10 usd)))
+#+end_src
+
+**** テスト実行
+
+open: [[./src/demo/core.clj][core.clj]]
+
+**** スタックトレース
+
+#+begin_src clojure
+(defn root-cause []
+  (throw (RuntimeException. "from root-cause fn")))
+
+(defn fn1 []
+  (root-cause))
+
+(defn fn2 []
+  (fn1))
+
+(defn fn3 []
+  (fn2))
+
+;; (fn3)
+#+end_src
+
+**** 天啓モード
+
+#+begin_src clojure
+;;; Enlighten(天啓) mode
+;;; M-x cider-enlighten-mode
+(defn hoge [x y]
+  (let [x (* x 20)
+        y (+ y x)]
+    (* x y)))
+
+(defn fuga [x y]
+  (hoge (+ x y)
+        (- x y)))
+
+(fuga 30 10)
+#+end_src
+
+**** デバッガー
+
+#+begin_src clojure
+(defn apply-multiply [number-seq]
+  (reduce (fn [acc x]
+            (if (zero? x)
+              (reduced 0)
+              (* acc x)))
+          1
+          number-seq)) ; C-u C-M-x
+
+(apply-multiply (cycle [5 4 3 2 1 0])) ; evaluate
+#+end_src
+
+*** 一緒に使うプラグイン各種
+
+**** 入力補完: company-mode
+
+- 入力補完と言えば auto-complete が有名ですが、海外では company-mode の方が主流になりつつある?
+  - 特に拘りがなければ、 Cider と相性が良いのは company-mode なのでそちらを使うほうがメリットがある(かも
+  - 補完情報にアノテーションがつくので便利
+
+#+begin_src clojure
+(defn example-fn [long-long-long-name-arg]
+  long ; M-x company-complete / TAB
+  )
+#+end_src
+
+**** リファクタリング: clj-refactor.el
+
+- とても便利
+
+*** 最近では必要なくなったプラグイン各種
+
+- align-cljlet
+  - 元々は独立していたものだったが、 clojure-mode に取り込まれてしまったので必要なくなった
+
+- slamhound
+  - clj-refactor.el の clean-ns が使えるので必要なくなった
+
+*** その他のプラグイン
+
+- kibit-mode
+  - kibit と一緒に使うと幸せぽい
+
+- squiggly-clojure
+  - kibit と eastwood あたりを一緒に良い感じにしてくれる
+
+- clojure-cheatsheet
+  - 使ってないけど cheatsheet みたくて Emacs から離れたくないなら必須かも(必要?
+
+- cider-eval-sexp-fu
+  - 評価した部分が光ってたのしい
+
+- midje-mode
+  - Test Framework Midje を使っていたら入れるといい
+
+*** 最近の Cider 開発状況
+
+- とても活発
+- 開発版を普段使いしているととてもバギーで楽しい
+- =$HOME/.lein/profiles.clj= に Cider 用の設定を書く必要がそろそろなくなる
+  - 0.11.0 以降では自動的に依存関係を解消してくれるようになっている(まだ snapshot のみ)
 
 
+*** Cider のセットアップ方法について
 
-*** Cider
+- [[https://github.com/clojure-emacs/example-config][example-config]] をみてください
+
+*** Cider を使わないという選択肢
+
+**** inf-clojure を使う
+
+- [[https://github.com/clojure-emacs/inf-clojure][inf-clojure]] とは
+  - Bozhidar Batsov (Cider とかの人)が Rich Hickey の開発環境を知って作ったもの
+  - inferior-lisp を良い感じに Clojure 用にして拡張しやすくしたもの
+  - ドキュメントをひいたりするのはデフォルト機能として提供されている
+    - 補完機能や定義ジャンプは gtags でソースを用意して実現
+
+- メリット
+  - 軽量: 素の REPL と接続するだけなので当然
+  - シンプル: inferior-lisp をベースとしている
+
+- デメリット
+  - 当然のようにデバッガーやインスペクターはない
+  - Cider ではライブラリから提供される関数などにも定義ジャンプできるがそれができない(微妙につらい)
+    - gtags のような静的解析ツールに頼っているので仕方ない
+
+**** Cursive を使う
+
+- [[https://cursive-ide.com/][Cursive]] とは
+  - IntelliJ IDEA 上に構築されたハイテク開発環境
+  - Cider の次にメジャー
+  - 昨年末に正式リリースされた
+
+- メリット
+  - IDE の良さを活かした強力なデバッグ機能
+
+- デメリット
+  - Emacs ではない
+  - フォーマットの設定が微妙
+
+**** Vim を使う
+
+- 色々あるけど良くわからない
+  - 無難なのは fireplace.vim
+  - 外から見てる印象だと clj-refactor for Vim とかなくてつらそう
+    - (clj-refactor は refactor-nrepl を使ってるので他のエディタなどでも同じようなものを作れるはずだけど…)

@@ -4,7 +4,7 @@
   :license {:name "MIT"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.7.228"]]
-  :source-paths ["src" "src-cljs"]
+  :source-paths ["src" "src-cljs" "src-cljc"]
   :profiles
   {:dev {:dependencies [[com.cemerick/piggieback "0.2.1"]]
          :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}})

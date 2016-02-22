@@ -1,6 +1,5 @@
 (ns demo.core)
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+;;; テスト実行
+;;; C-c C-t n
+(defn plus3 [n] (+ n 3))
