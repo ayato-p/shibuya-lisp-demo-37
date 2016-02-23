@@ -5,7 +5,7 @@
 (deftest plus3-test
   (testing "positive number"
     (are [n expect] (= (plus3 n) expect)
-      1  4
+      1  2
       10 13
       11 14))
   (testing "negative number"
