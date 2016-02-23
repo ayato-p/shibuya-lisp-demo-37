@@ -4,7 +4,7 @@
   :license {:name "MIT"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.7.228"]
-                 ;; Hotload Dependency
+                 ;; Hotload Dependency: <prefix> hd
                  ;; [hiccup "1.0.5"]
                  ]
   :source-paths ["src" "src-cljs" "src-cljc"]

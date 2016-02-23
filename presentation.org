@@ -2,7 +2,8 @@
 #+AUTHOR: ayato_p (あやぴー)
 
 #+begin_src emacs-lisp
-(set-default-font "Droid Sans Mono-40")
+(set-default-font "Droid Sans Mono-8")
+(flyspell-mode -1)
 (org-timer-set-timer "0:45:00")
 (org-display-inline-images t)
 (org-tree-slide-mode t)
@@ -83,17 +84,20 @@ ref: [[http://blog.cognitect.com/blog/2016/1/28/state-of-clojure-2015-survey-res
 
 (take 10 (gen-people))
 
-;;; C-c C-d C-d RET
+;;; C-c C-d C-d RET & M-.
 (println "Hello")
+(.toUpperCase "hello")
 #+end_src
 
-**** 便利機能
+#+RESULTS:
+
+*** 便利機能
 
 - 沢山機能があるけど、それらを全部普段から使っているわけではない
   - 主に使うのはマクロ展開やインスペクターなど
   - 逆にデバッガなどはあまり使ってない(便利だけど)
 
-***** 複数の REPL を同時に使う
+**** 複数の REPL を同時に使う
 
 - Clojure を使った開発では同時に ClojureScript を書くことが多い(?)
   - Clojure の REPL を ClojureScript の評価には使えない
@@ -104,7 +108,7 @@ ref: [[http://blog.cognitect.com/blog/2016/1/28/state-of-clojure-2015-survey-res
 open: [[./project.clj][project.clj]]
 open: [[./src-cljs/demo/core.cljs][ClojureScript file]]
 
-***** マクロ展開
+**** マクロ展開
 
 - マクロ展開が短いショートカットで出来る
   - =macroexpand-1= と =clojure.walk/macroexpand-all= がカジュアルに使えるのは嬉しい
@@ -115,7 +119,7 @@ open: [[./src-cljs/demo/core.cljs][ClojureScript file]]
   (str "Hello, " name))
 #+end_src
 
-***** インスペクター
+**** インスペクター
 
 - Clojure も Java もどちらのデータでも簡単にインスペクトできる(便利)
 
@@ -142,19 +146,19 @@ open: [[./src-cljs/demo/core.cljs][ClojureScript file]]
   (.add (TMoney. 10 usd)))
 #+end_src
 
-***** テスト実行
+**** テスト実行
 
 - 現在のネームスペースに対応するテストを簡単に実行したり、 fail していたテストを実行したりできる
 
 open: [[./src/demo/core.clj][core.clj]]
 
-***** スタックトレース
+**** スタックトレース
 
 - スタックトレースが Clojure/Java などでフィルタリングできるので情報を探しやすい
 
 #+begin_src clojure
 (defn root-cause []
-  (throw (RuntimeException. "from root-cause fn")))
+  (throw (RuntimeException. "from root cause fn")))
 
 (defn fn1 []
   (root-cause))
@@ -168,9 +172,10 @@ open: [[./src/demo/core.clj][core.clj]]
 ;; (fn3)
 #+end_src
 
-***** 啓発モード
+**** 啓発モード
 
 - 普段使わない機能だけど、面白いと思う
+- Light Table の様な機能
 
 #+begin_src clojure
 ;;; Enlighten(啓発) mode
@@ -187,7 +192,7 @@ open: [[./src/demo/core.clj][core.clj]]
 (fuga 30 10)
 #+end_src
 
-***** デバッガー
+**** デバッガー
 
 - ステップ実行などが比較的容易に出来るようになっている
 
@@ -203,9 +208,23 @@ open: [[./src/demo/core.clj][core.clj]]
 (apply-multiply (cycle [5 4 3 2 1 0])) ; evaluate
 #+end_src
 
-**** 一緒に使うプラグイン各種
+**** 名前空間ブラウザー
 
-***** 入力補完: company-mode
+- 名前空間を眺めるのに便利
+- =M-x cider-browse-ns=
+
+**** Grimoire ドキュメント
+
+- ClojureDocs と同じものを Emacs から参照できる
+
+#+begin_src clojure
+;;; C-c C-d C-r
+(map inc (range 10))
+#+end_src
+
+*** 一緒に使うプラグイン各種
+
+**** 入力補完: company-mode
 
 - 入力補完と言えば auto-complete が有名ですが、海外では company-mode の方が主流になりつつある?
   - 特に拘りがなければ、 Cider と相性が良いのは company-mode なのでそちらを使うほうがメリットがある(かも
@@ -219,7 +238,7 @@ open: [[./src/demo/core.clj][core.clj]]
   )
 #+end_src
 
-***** リファクタリング: clj-refactor.el
+**** リファクタリング: clj-refactor.el
 
 - とても便利
 - cljs/cljc ファイルの対応も完了している
@@ -236,12 +255,12 @@ open: [[./src/demo/refactoring.clj][refactoring.clj]]
 
 more examples: [[https://github.com/clojure-emacs/clj-refactor.el/wiki][clj-refactor.el wiki page]]
 
-***** 構造的編集: paredit, smartparens
+**** 構造的編集: paredit, smartparens
 
 - 言わずと知れた括弧のバランスを取ってくれたり、編集を楽にしてくれるプラグイン
 - [[https://shaunlebron.github.io/parinfer/][parinfer]] というのが最近話題ではあるけど、 Emacs 版がまだ微妙そう(安定してなさそう)
 
-**** 最近では必要なくなったプラグイン各種
+*** 最近では必要なくなったプラグイン各種
 
 - align-cljlet
   - 元々は独立していたものだったが、 clojure-mode に取り込まれてしまったので必要なくなった
@@ -252,7 +271,7 @@ more examples: [[https://github.com/clojure-emacs/clj-refactor.el/wiki][clj-refa
 - alembic (Leiningen plugin)
   - Emacs 専用というわけではないけど、 clj-refactor を使ってるなら同様のことが出来るので不要
 
-**** その他のプラグイン
+*** その他のプラグイン
 
 - kibit-mode
   - kibit と一緒に使うと幸せぽい
@@ -269,7 +288,7 @@ more examples: [[https://github.com/clojure-emacs/clj-refactor.el/wiki][clj-refa
 - midje-mode
   - Test Framework Midje を使っていたら入れるといい
 
-**** 最近の Cider 開発状況
+*** 最近の Cider 開発状況
 
 - とても活発
 - 開発版を普段使いしているととてもバギーで楽しい
@@ -287,16 +306,16 @@ more examples: [[https://github.com/clojure-emacs/clj-refactor.el/wiki][clj-refa
     - =$HOME/.lein/profiles.clj= に Cider 用の設定を書く必要がそろそろなくなる
   - Enlighten mode の追加
 
-**** Cider のセットアップ方法について
+*** Cider のセットアップ方法について
 
 - [[https://github.com/clojure-emacs/example-config][example-config]] をみてください
 - 開発版を使わなければほとんどの場合まともに動く
 
-**** Cider を使わないという選択肢
+*** Cider を使わないという選択肢
 
 - Emacs + Cider は最高だけど、 Cider 以外にも幾つか選択肢はあるので合わなければ乗り換えるのもあり
 
-***** inf-clojure を使う
+**** inf-clojure を使う
 
 - [[https://github.com/clojure-emacs/inf-clojure][inf-clojure]] とは
   - Bozhidar Batsov (Cider とかの人)が Rich Hickey の開発環境を知って作ったもの
@@ -314,7 +333,7 @@ more examples: [[https://github.com/clojure-emacs/clj-refactor.el/wiki][clj-refa
   - Cider ではライブラリから提供される関数などにも定義ジャンプできるがそれができない(微妙につらい)
     - gtags のような静的解析ツールに頼っているので仕方ない
 
-***** Cursive を使う
+**** Cursive を使う
 
 - [[https://cursive-ide.com/][Cursive]] とは
   - IntelliJ IDEA 上に構築されたハイテク開発環境
@@ -328,14 +347,14 @@ more examples: [[https://github.com/clojure-emacs/clj-refactor.el/wiki][clj-refa
   - Emacs ではない
   - フォーマットの設定が微妙
 
-***** Vim を使う
+**** Vim を使う
 
 - 色々あるけど良くわからない
   - 無難なのは fireplace.vim
   - 外から見てる印象だと clj-refactor for Vim とかなくてつらそう
     - (clj-refactor は refactor-nrepl を使ってるので他のエディタなどでも同じようなものを作れるはずだけど…)
 
-***** Light Table
+**** Light Table
 
 - 個人的にはあまりオススメしてない
 
